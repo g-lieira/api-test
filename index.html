@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste com API's</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        h1, h4{
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+
+        p {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 15px;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Exemplo de uso de API de gerar frases e tradução</h1>
+    <div>
+      <h4>Frase gerada:</h4>
+      <p id="advice"></p>
+    </div>
+    <div>
+      <h4>Tradução:</h4>
+      <p id="translated-text"></p>
+    </div>
+
+    <script>
+        fetch('https://api.adviceslip.com/advice')
+        .then(response => {
+            if (!response.ok) {
+            throw new Error('Erro na solicitação da API.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            
+
+            const translationEndpoint = 'https://api.mymemory.translated.net/get';
+            const sourceText = data.slip.advice;
+            const sourceLang = 'en';
+            const targetLang = 'pt';
+
+
+            const translationRequest = `${translationEndpoint}?q=${sourceText}&langpair=${sourceLang}|${targetLang}`;
+            fetch(translationRequest)
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na solicitação da API de tradução.');
+            }
+            return response.json();
+            }).then(data => {
+
+                const adviceElement = document.getElementById('advice');
+                adviceElement.innerText = sourceText;
+
+                const translation = data.responseData.translatedText;
+                const translatedTextElement = document.getElementById('translated-text');
+                translatedTextElement.innerText = translation;
+            })
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    </script>
+</body>
+</html>
